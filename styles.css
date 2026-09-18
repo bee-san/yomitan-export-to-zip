@@ -1,0 +1,370 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+
+:root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #4a4a4a;
+    --border: #b8b8b8;
+    --accent: #0b6e4f;
+    --accent-fg: #ffffff;
+    --accent-soft: #e6f4ef;
+    --error-bg: #fdecec;
+    --error-fg: #8a1c1c;
+    --warn-bg: #fff6e0;
+    --warn-fg: #5c4200;
+    --focus: #1a56db;
+    color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #121417;
+        --fg: #f0f0f0;
+        --muted: #c2c2c2;
+        --border: #555a60;
+        --accent: #4fd1a5;
+        --accent-fg: #071a12;
+        --accent-soft: #15302a;
+        --error-bg: #3a1414;
+        --error-fg: #ffb4b4;
+        --warn-bg: #3a2e0f;
+        --warn-fg: #ffe08a;
+        --focus: #8ab4ff;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans JP", sans-serif;
+    line-height: 1.5;
+    background: var(--bg);
+    color: var(--fg);
+}
+
+body {
+    margin: 0 auto;
+    padding: 1rem;
+    max-width: 62rem;
+}
+
+h1 {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+}
+
+h2 {
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem;
+}
+
+h3 {
+    font-size: 1.05rem;
+    margin: 0.5rem 0;
+}
+
+p {
+    margin: 0.4rem 0;
+}
+
+code {
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    font-size: 0.95em;
+    background: var(--accent-soft);
+    padding: 0 0.25em;
+    border-radius: 3px;
+}
+
+a {
+    color: var(--accent);
+}
+
+:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0;
+    background: var(--bg);
+    padding: 0.5rem;
+}
+
+.skip-link:focus {
+    left: 0.5rem;
+    top: 0.5rem;
+    z-index: 10;
+}
+
+.visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.site-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.tagline {
+    color: var(--muted);
+}
+
+.privacy {
+    background: var(--accent-soft);
+    border-left: 4px solid var(--accent);
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+}
+
+.step {
+    margin: 1.25rem 0;
+}
+
+.dropzone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    transition: border-color 0.15s;
+}
+
+.dropzone.dragover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.file-label {
+    display: block;
+    cursor: pointer;
+}
+
+.file-label-title {
+    display: block;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.file-label-hint {
+    display: block;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+#file-input {
+    display: block;
+    margin: 0.75rem auto 0;
+    max-width: 100%;
+}
+
+.file-name {
+    color: var(--muted);
+    margin-top: 0.5rem;
+    word-break: break-all;
+}
+
+.status {
+    min-height: 1.5rem;
+    margin: 0.5rem 0;
+    font-weight: 500;
+}
+
+.error {
+    background: var(--error-bg);
+    color: var(--error-fg);
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.5rem 0 0.75rem;
+}
+
+button,
+.button {
+    font: inherit;
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    cursor: pointer;
+    min-height: 2.5rem;
+}
+
+button:hover:not(:disabled),
+.button:hover {
+    border-color: var(--accent);
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+button.primary,
+a.download {
+    background: var(--accent);
+    color: var(--accent-fg);
+    border-color: var(--accent);
+    font-weight: 600;
+}
+
+a.download {
+    display: inline-block;
+    text-decoration: none;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    word-break: break-all;
+}
+
+.move-buttons {
+    display: inline-flex;
+    gap: 0.25rem;
+}
+
+.move-buttons button {
+    min-width: 2.5rem;
+    padding: 0.35rem 0.5rem;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table.dictionaries {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table.dictionaries th,
+table.dictionaries td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+table.dictionaries th {
+    background: var(--accent-soft);
+}
+
+.dict-title {
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.dict-meta,
+.contents {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.archive-name {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.9rem;
+    word-break: break-all;
+}
+
+.progress-wrap {
+    margin: 0.75rem 0;
+}
+
+progress {
+    display: block;
+    width: 100%;
+    height: 1rem;
+    accent-color: var(--accent);
+}
+
+.report ul {
+    padding-left: 1.25rem;
+}
+
+.report li.warning {
+    background: var(--warn-bg);
+    color: var(--warn-fg);
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+    margin: 0.25rem 0;
+    list-style: none;
+}
+
+.site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
+    padding-top: 0.75rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+/* Narrow screens: stack each table row as a card. */
+@media (max-width: 40rem) {
+    table.dictionaries thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+
+    table.dictionaries,
+    table.dictionaries tbody,
+    table.dictionaries tr,
+    table.dictionaries td {
+        display: block;
+        width: 100%;
+    }
+
+    table.dictionaries tr {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        padding: 0.25rem 0;
+    }
+
+    table.dictionaries td {
+        border-bottom: none;
+        padding: 0.3rem 0.75rem;
+    }
+
+    table.dictionaries td::before {
+        content: attr(data-label);
+        display: block;
+        font-size: 0.8rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    table.dictionaries td.position::before {
+        content: none;
+    }
+
+    table.dictionaries td.position {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+}
