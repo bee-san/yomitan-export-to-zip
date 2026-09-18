@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="description" content="Convert a Yomitan dictionary collection export (yomitan-dictionaries-*.json) back into standalone Yomitan dictionary ZIP files. Runs entirely in your browser; nothing is uploaded.">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; worker-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+    <title>Yomitan export to ZIP</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b6e4f'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='white' font-family='sans-serif'%3EZIP%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to main content</a>
+<header class="site-header">
+    <h1>Yomitan export to ZIP</h1>
+    <p class="tagline">Turn a Yomitan <em>Export Dictionary Collection</em> file (<code>yomitan-dictionaries-…json</code>) back into standalone dictionary <code>.zip</code> files, numbered in the order they were installed.</p>
+    <p class="privacy" id="privacy-note"><strong>Private by construction.</strong> Everything runs in this page with JavaScript. Your export is read from disk by your browser and is never uploaded; this site makes no network requests after loading and has no analytics.</p>
+</header>
+
+<main id="main">
+    <section class="step" aria-labelledby="step1-heading">
+        <h2 id="step1-heading">1. Choose your export file</h2>
+        <p id="file-help">In Yomitan: <strong>Settings › Backup › Export Dictionary Collection</strong>. The file can be very large; it is read as a stream, so it does not need to fit in memory.</p>
+        <div class="dropzone" id="dropzone">
+            <label class="file-label" for="file-input">
+                <span class="file-label-title">Select or drop the export file</span>
+                <span class="file-label-hint">JSON only</span>
+            </label>
+            <input type="file" id="file-input" accept=".json,application/json" aria-describedby="file-help">
+            <p class="file-name" id="file-name" aria-live="polite"></p>
+        </div>
+    </section>
+
+    <div id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
+    <div id="error" class="error" role="alert" hidden></div>
+
+    <section class="step" id="dictionaries-section" aria-labelledby="step2-heading" hidden>
+        <h2 id="step2-heading">2. Order the dictionaries</h2>
+        <p>Archives are named <code>1-…zip</code>, <code>2-…zip</code>, … so that importing them in file-name order restores this order. Start from the export order or sort by name; the numbers update as you go.</p>
+        <div class="toolbar" role="group" aria-label="Ordering">
+            <button type="button" id="sort-export">Export order</button>
+            <button type="button" id="sort-name-asc">Sort by name A→Z</button>
+            <button type="button" id="sort-name-desc">Sort by name Z→A</button>
+        </div>
+        <div class="table-wrap">
+            <table id="dictionary-table" class="dictionaries">
+                <caption class="visually-hidden">Dictionaries in this export, in output order</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Dictionary</th>
+                        <th scope="col">Contents</th>
+                        <th scope="col">Move</th>
+                        <th scope="col">Archive</th>
+                    </tr>
+                </thead>
+                <tbody id="dictionary-rows"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="step" id="convert-section" aria-labelledby="step3-heading" hidden>
+        <h2 id="step3-heading">3. Convert and download</h2>
+        <div class="toolbar">
+            <button type="button" id="convert" class="primary">Convert to ZIP files</button>
+            <button type="button" id="download-all" hidden>Download all</button>
+            <button type="button" id="reset">Start over</button>
+        </div>
+        <div class="progress-wrap" id="progress-wrap" hidden>
+            <label for="progress" id="progress-label">Converting…</label>
+            <progress id="progress" max="100" value="0"></progress>
+        </div>
+        <div id="report" class="report" hidden>
+            <h3>Conversion report</h3>
+            <ul id="report-list"></ul>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <p>
+        <a href="https://github.com/bee-san/yomitan-export-to-zip">Source code and tests</a> ·
+        <a href="https://github.com/bee-san/yomitan-export-to-zip/blob/main/docs/FORMAT.md">What is preserved and what the export cannot represent</a> ·
+        GPL-3.0-or-later
+    </p>
+    <p>Not affiliated with the Yomitan project. Output archives are standard Yomitan dictionaries and import into Yomitan and Hachidori.</p>
+</footer>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>

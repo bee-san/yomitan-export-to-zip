@@ -1,0 +1,30 @@
+{
+  "name": "yomitan-export-to-zip",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Convert a Yomitan dictionary-collection export (yomitan-dictionaries-*.json) back into standalone Yomitan dictionary ZIP files, entirely in the browser.",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:browser",
+    "test:unit": "node --test 'test/unit/*.test.mjs'",
+    "test:browser": "playwright test -c test/browser/playwright.config.js",
+    "test:roundtrip": "node test/roundtrip/yomitan-import.mjs && node test/roundtrip/hachidori-import.mjs",
+    "fixtures": "node tools/generate-fixtures.mjs",
+    "serve": "node tools/serve.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
+    "ajv": "8.20.0",
+    "playwright": "1.63.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bee-san/yomitan-export-to-zip.git"
+  },
+  "homepage": "https://bee-san.github.io/yomitan-export-to-zip/"
+}
