@@ -16,7 +16,7 @@ const fixture = (name) => join(FIXTURES, `${name}.json`);
 const EXPORT_ORDER = ['valid-dictionary1', 'Rich Metadata Dictionary', 'Frequency Only', '  Weird/Title: "quotes" <tags> ..\\..  ', 'Legacy V1 Dictionary', 'valid-dictionary1 (copy)'];
 
 async function loadAndScan(page, name = 'multi-six') {
-    await page.goto('/');
+    await page.goto('./');
     await page.setInputFiles('#file-input', fixture(name));
     await expect(page.locator('#status')).toHaveText(/Found \d+ dictionar/, {timeout: 30_000});
 }
@@ -60,7 +60,7 @@ test('conversion runs in a Web Worker', async ({page}) => {
     const workers = [];
     page.on('worker', (w) => workers.push(w.url()));
     await loadAndScan(page, 'single-rich-meta');
-    expect(scripts).toContain('/src/worker.js');
+    expect(scripts.some((p) => p.endsWith('/src/worker.js'))).toBe(true);
     expect(workers.some((u) => u.endsWith('/src/worker.js'))).toBe(true);
 });
 
@@ -108,8 +108,9 @@ test('download all triggers one download per archive with the numbered names', a
 test('no user data leaves the browser: only same-origin static assets are requested, and conversion works offline', async ({page, context}) => {
     const requests = [];
     page.on('request', (r) => requests.push({url: r.url(), method: r.method(), postData: r.postData()}));
-    await page.goto('/');
+    await page.goto('./');
     const origin = new URL(page.url()).origin;
+    const basePath = new URL(page.url()).pathname.replace(/[^/]*$/, '');
     const loaded = requests.length;
     expect(requests.every((r) => r.url.startsWith(origin) && r.method === 'GET' && r.postData === null)).toBe(true);
 
@@ -129,7 +130,8 @@ test('no user data leaves the browser: only same-origin static assets are reques
         expect(r.url.startsWith(origin), r.url).toBe(true);
         expect(r.method).toBe('GET');
         expect(r.postData).toBeNull();
-        expect(new URL(r.url).pathname).toMatch(/^\/(?:src\/[a-z-]+\.js|vendor\/fflate\.js)$/);
+        expect(new URL(r.url).pathname.startsWith(basePath), r.url).toBe(true);
+        expect(new URL(r.url).pathname.slice(basePath.length)).toMatch(/^(?:src\/[a-z-]+\.js|vendor\/fflate\.js)$/);
     }
     expect(requests.some((r) => !r.url.startsWith(origin) && !r.url.startsWith('blob:'))).toBe(false);
 
@@ -142,7 +144,7 @@ test('no user data leaves the browser: only same-origin static assets are reques
 });
 
 test('has no axe accessibility violations before, during and after conversion', async ({page}) => {
-    await page.goto('/');
+    await page.goto('./');
     await expectNoAxeViolations(page, 'initial');
     await page.setInputFiles('#file-input', fixture('multi-six'));
     await expect(page.locator('#status')).toHaveText(/Found 6/);
@@ -155,7 +157,7 @@ test('has no axe accessibility violations before, during and after conversion', 
 });
 
 test('is operable with the keyboard alone', async ({page}) => {
-    await page.goto('/');
+    await page.goto('./');
     await page.keyboard.press('Tab'); // skip link
     await expect(page.locator('.skip-link')).toBeFocused();
     await page.keyboard.press('Tab');
@@ -200,7 +202,7 @@ test('works on a narrow screen without horizontal overflow', async ({page}) => {
 });
 
 test('rejects wrong, truncated and empty files with visible messages', async ({page}) => {
-    await page.goto('/');
+    await page.goto('./');
     await page.setInputFiles('#file-input', {name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('hello')});
     await expect(page.locator('#error')).toBeVisible();
     await expect(page.locator('#error')).toContainText('does not look like a JSON file');
