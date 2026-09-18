@@ -141,9 +141,14 @@ export class StreamingJsonParser {
 
     /** Signal end of input and return the root value. */
     end() {
-        if (this._inString) throw new JsonSyntaxError('Unexpected end of input inside a string', this._position);
+        if (this._inString) throw new JsonSyntaxError('Unexpected end of input inside a string; the file is truncated', this._position);
         if (this._partial.length > 0) {
-            this._finishLiteral();
+            try {
+                this._finishLiteral();
+            } catch (error) {
+                if (this._stack.length > 0) throw new JsonSyntaxError('Unexpected end of input inside a value; the file is truncated', this._position);
+                throw error;
+            }
         }
         if (this._stack.length > 0) throw new JsonSyntaxError(`Unexpected end of input: ${this._stack.length} unclosed container(s); the file is truncated`, this._position);
         if (!this._hasRoot) throw new JsonSyntaxError('Empty input: no JSON value found', this._position);
@@ -411,7 +416,7 @@ export async function feedStream(parser, byteStream, options = {}) {
     try {
         tail = decoder.decode();
     } catch {
-        throw new JsonSyntaxError('Input is not valid UTF-8', parser.position);
+        throw new JsonSyntaxError('Input ends in the middle of a UTF-8 character; the file is truncated', parser.position);
     }
     if (tail.length > 0) parser.feed(tail);
     return parser.end();
