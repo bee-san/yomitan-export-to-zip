@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Pinned Yomitan commit whose importer/exporter produced test/fixtures/ (see PROVENANCE.md).
+  YOMITAN_COMMIT: 77e200428902abf4fa48284df92da7af3dcb4162
+
+jobs:
+  unit:
+    name: Unit tests and schema validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:unit
+
+  browser:
+    name: Browser, accessibility and privacy tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: test-results/
+
+  roundtrip:
+    name: Yomitan compatibility import and Hachidori round trip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check out Yomitan at the pinned commit and build its libraries
+        run: |
+          git init -q yomitan
+          git -C yomitan remote add origin https://github.com/yomidevs/yomitan.git
+          git -C yomitan fetch --depth 1 origin "$YOMITAN_COMMIT"
+          git -C yomitan checkout --detach FETCH_HEAD
+          cd yomitan && npm ci --ignore-scripts && npm run build:libs
+      - name: Check out current Hachidori
+        run: git clone --depth 1 https://github.com/bee-san/hachidori.git hachidori
+      - name: Fixtures regenerate byte-identically from Yomitan's own code
+        run: |
+          sha256sum test/fixtures/*.json > /tmp/before.txt
+          YOMITAN_DIR="$PWD/yomitan" npm run fixtures
+          sha256sum test/fixtures/*.json | diff /tmp/before.txt -
+      - name: Yomitan importer compatibility check
+        run: YOMITAN_DIR="$PWD/yomitan" node test/roundtrip/yomitan-import.mjs
+      - name: Hachidori semantic round trip
+        run: HACHIDORI_DIR="$PWD/hachidori" node test/roundtrip/hachidori-import.mjs
