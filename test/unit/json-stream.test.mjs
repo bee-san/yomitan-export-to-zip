@@ -125,3 +125,20 @@ test('long strings are consumed with indexOf fast path (base64-like payload)', (
     assert.equal(result.content.length, big.length);
     assert.equal(result.n, 1);
 });
+
+test('parsing time is linear in chunk size: one 7 MB chunk with 400k short strings finishes quickly', () => {
+    // Regression: a per-string indexOf/regex scan to the end of the chunk made this quadratic
+    // (minutes for a few MB when the browser hands over large File chunks).
+    const items = [];
+    for (let i = 0; i < 400000; i++) items.push(`"word ${i} 日本語"`);
+    const chunk = `[${items.join(',')}]`;
+    assert.ok(chunk.length > 7e6);
+    const started = performance.now();
+    const parser = new StreamingJsonParser();
+    parser.feed(chunk);
+    const result = parser.end();
+    const elapsed = performance.now() - started;
+    assert.equal(result.length, 400000);
+    assert.equal(result[399999], 'word 399999 日本語');
+    assert.ok(elapsed < 5000, `took ${elapsed.toFixed(0)} ms`);
+});

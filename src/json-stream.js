@@ -14,7 +14,7 @@ const MAX_DEPTH = 256;
 const WS = new Set([0x20, 0x09, 0x0a, 0x0d]);
 const LITERALS = new Map([['true', true], ['false', false], ['null', null]]);
 // eslint-disable-next-line no-control-regex
-const CONTROL_RE = /[\u0000-\u001f]/g;
+const STRING_SPECIAL_RE = /["\\\u0000-\u001f]/g;
 const NUMBER_RE = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
 export class JsonSyntaxError extends Error {
@@ -268,18 +268,22 @@ export class StreamingJsonParser {
                 }
                 continue;
             }
-            let q = chunk.indexOf('"', i);
-            let b = chunk.indexOf('\\', i);
-            if (q === -1) q = n;
-            if (b === -1) b = n;
-            const stop = Math.min(q, b);
+            // One scan that stops at the first quote, backslash or control character; each
+            // character of the chunk is therefore visited once (indexOf per string would rescan
+            // the rest of the chunk for every string and become quadratic).
+            STRING_SPECIAL_RE.lastIndex = i;
+            const m = STRING_SPECIAL_RE.exec(chunk);
+            const stop = m === null ? n : m.index;
             if (stop > i) {
-                this._checkControlChars(chunk, i, stop);
                 this._stringParts.push(chunk.slice(i, stop));
                 this._position += stop - i;
                 i = stop;
             }
             if (i >= n) return i;
+            const special = chunk.charCodeAt(i);
+            if (special < 0x20) {
+                throw new JsonSyntaxError('Unescaped control character in string', this._position);
+            }
             if (chunk.charCodeAt(i) === 0x22) {
                 this._position++;
                 i++;
@@ -312,15 +316,6 @@ export class StreamingJsonParser {
             i++;
         }
         return i;
-    }
-
-    _checkControlChars(chunk, from, to) {
-        // eslint-disable-next-line no-control-regex
-        CONTROL_RE.lastIndex = from;
-        const m = CONTROL_RE.exec(chunk);
-        if (m !== null && m.index < to) {
-            throw new JsonSyntaxError('Unescaped control character in string', this._position + (m.index - from));
-        }
     }
 
     _openContainer(type, value, streamed = false) {

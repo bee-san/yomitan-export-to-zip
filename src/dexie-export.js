@@ -43,6 +43,7 @@ function base64ToBytes(text) {
         const buf = Buffer.from(text, 'base64');
         return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
     }
+    if (typeof Uint8Array.fromBase64 === 'function') return Uint8Array.fromBase64(text);
     const bin = atob(text);
     const out = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
