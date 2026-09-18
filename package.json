@@ -18,5 +18,13 @@
     "@playwright/test": "1.63.0",
     "ajv": "8.20.0",
     "playwright": "1.63.0"
-  }
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bee-san/yomitan-export-to-zip.git"
+  },
+  "homepage": "https://bee-san.github.io/yomitan-export-to-zip/"
 }

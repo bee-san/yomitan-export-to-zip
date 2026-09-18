@@ -462,7 +462,7 @@ export async function convertExport(source, options = {}) {
     let dictionariesTableSeen = false;
     const progress = () => options.onProgress?.({bytes, rows, table: currentTable});
 
-    const builderFor = (tableName, value) => {
+    const builderFor = (value) => {
         const title = value && typeof value === 'object' ? value.dictionary : undefined;
         const builder = typeof title === 'string' ? builders.get(title) : undefined;
         if (builder === undefined) {
@@ -501,12 +501,12 @@ export async function convertExport(source, options = {}) {
                     builders.set(info.title, new DictionaryBuilder(key, value));
                     break;
                 }
-                case 'terms': builderFor(tableName, value)?.addTerm(value); break;
-                case 'termMeta': builderFor(tableName, value)?.addTermMeta(value); break;
-                case 'kanji': builderFor(tableName, value)?.addKanji(value); break;
-                case 'kanjiMeta': builderFor(tableName, value)?.addKanjiMeta(value); break;
-                case 'tagMeta': builderFor(tableName, value)?.addTag(value); break;
-                case 'media': builderFor(tableName, value)?.addMedia(value); break;
+                case 'terms': builderFor(value)?.addTerm(value); break;
+                case 'termMeta': builderFor(value)?.addTermMeta(value); break;
+                case 'kanji': builderFor(value)?.addKanji(value); break;
+                case 'kanjiMeta': builderFor(value)?.addKanjiMeta(value); break;
+                case 'tagMeta': builderFor(value)?.addTag(value); break;
+                case 'media': builderFor(value)?.addMedia(value); break;
                 default: break; // unknown table, reported via headerWarnings
             }
         },

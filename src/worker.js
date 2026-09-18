@@ -14,8 +14,9 @@ function serializeError(error) {
 
 self.addEventListener('message', async (event) => {
     const {id, type, file} = event.data;
-    const controller = new AbortController();
+    // A new request supersedes any in-flight one (the page only ever runs one at a time).
     current?.abort();
+    const controller = new AbortController();
     current = controller;
     try {
         if (type === 'scan') {
@@ -49,8 +50,8 @@ self.addEventListener('message', async (event) => {
                 warnings: a.warnings,
             }));
             self.postMessage({id, type: 'converted', header: result.header, archives, warnings: result.warnings});
-        } else if (type === 'cancel') {
-            controller.abort();
+        } else {
+            throw new Error(`Unknown worker request "${type}"`);
         }
     } catch (error) {
         if (controller.signal.aborted) return;
