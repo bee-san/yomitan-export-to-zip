@@ -312,7 +312,7 @@ function setBusy(busy) {
     renderRows();
 }
 
-function resetAll() {
+function resetAll(clearInput = true) {
     cancelWork();
     for (const a of state.archives.values()) URL.revokeObjectURL(a.url);
     state.file = null;
@@ -321,7 +321,7 @@ function resetAll() {
     state.archives = new Map();
     state.warnings = [];
     state.busy = false;
-    els.fileInput.value = '';
+    if (clearInput) els.fileInput.value = '';
     els.fileInput.disabled = false;
     els.fileName.textContent = '';
     els.dictionariesSection.hidden = true;
@@ -337,7 +337,7 @@ function resetAll() {
 }
 
 async function chooseFile(file) {
-    resetAll();
+    resetAll(false);
     if (!file) return;
     state.file = file;
     els.fileName.textContent = `${file.name} (${formatBytes(file.size)})`;

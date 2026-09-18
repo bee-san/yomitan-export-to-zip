@@ -13,6 +13,8 @@ const MAX_DEPTH = 256;
 
 const WS = new Set([0x20, 0x09, 0x0a, 0x0d]);
 const LITERALS = new Map([['true', true], ['false', false], ['null', null]]);
+// eslint-disable-next-line no-control-regex
+const CONTROL_RE = /[\u0000-\u001f]/g;
 const NUMBER_RE = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/;
 
 export class JsonSyntaxError extends Error {
@@ -313,10 +315,11 @@ export class StreamingJsonParser {
     }
 
     _checkControlChars(chunk, from, to) {
-        for (let k = from; k < to; k++) {
-            if (chunk.charCodeAt(k) < 0x20) {
-                throw new JsonSyntaxError('Unescaped control character in string', this._position + (k - from));
-            }
+        // eslint-disable-next-line no-control-regex
+        CONTROL_RE.lastIndex = from;
+        const m = CONTROL_RE.exec(chunk);
+        if (m !== null && m.index < to) {
+            throw new JsonSyntaxError('Unescaped control character in string', this._position + (m.index - from));
         }
     }
 
