@@ -1,5 +1,7 @@
 # Yomitan export to ZIP
 
+[![Discord](https://img.shields.io/discord/754001738184392704?logo=discord&label=Discord)](https://discord.skerritt.blog)
+
 **Site:** https://bee-san.github.io/yomitan-export-to-zip/
 
 Turn a Yomitan *Export Dictionary Collection* file
